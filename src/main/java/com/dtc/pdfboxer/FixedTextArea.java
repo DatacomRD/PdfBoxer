@@ -12,32 +12,44 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 /**
  * <a href='http://stackoverflow.com/questions/19635275/how-to-generate-multiple-lines-in-pdf-using-apache-pdfbox'>Reference</a>
  * <p>
+ * 顯示水平多列文字，提供自動換行功能
+ * <p>
  * 注意事項：
  * <ul>
  * 	<li>內文過長時，下邊界將會一直延展，直到 page 的底端</li>
  * </ul>
  */
 public class FixedTextArea {
-
 	private PDPageContentStream contentStream;
-	private Rect rect = Rect.create(PDRectangle.LETTER);
-	private PDFont pdfFont = PDType1Font.HELVETICA;
-	private float fontSize = 18;
-	private float lineHeight = 1f;
+	private PDFont pdfFont;
+	private float fontSize;
+	private float lineHeight;
+
 	private boolean considerFontHeight = false;
 	private boolean currentIsOneByte = true;
 
 	public FixedTextArea(PDPageContentStream contentStream) {
-		this.contentStream = contentStream;
+		this(contentStream, PDType1Font.HELVETICA, 18, 1);
 	}
 
-	public void showText(String text) throws IOException {
+	public FixedTextArea(PDPageContentStream contentStream, PDFont pdfFont, float fontSize, float lineHeight) {
+		this.contentStream = contentStream;
+		this.pdfFont = pdfFont;
+		this.fontSize = fontSize;
+		this.lineHeight = lineHeight;
+	}
+
+	/**
+	 * 考慮到斷行、自動換行等行為，並將 text 輸出到 contentStream
+	 */
+	public void showText(String text, Rect rect) throws IOException {
 		showText(text, rect, pdfFont, fontSize, lineHeight);
 	}
 
 	/**
 	 * 考慮到斷行、自動換行等行為，並將 text 輸出到 contentStream
-	 * @throws IOException
+	 * <p>
+	 * 傳遞進來的參數不會改變 field 的值
 	 */
 	public void showText(String text, Rect rect, PDFont pdfFont, float fontSize, float lineHeight) throws IOException {
 		List<String> lines = new ArrayList<String>();
@@ -61,7 +73,7 @@ public class FixedTextArea {
 		contentStream.setFont(pdfFont, fontSize);
 		contentStream.newLineAtOffset(rect.startX, rect.startY);
 
-		for (String line: lines) {
+		for (String line : lines) {
 			contentStream.showText(line);
 			contentStream.newLineAtOffset(0, -leading);
 		}
@@ -75,7 +87,7 @@ public class FixedTextArea {
 		List<String> lines = new ArrayList<String>();
 		int lastPostition = -1;
 		if (text.isEmpty()) {
-			lines.add(""); // 如果這一列是空白，也至少要加上一個空白列
+			lines.add(""); // 如果這 text 是空白，也至少要加上一個空白列
 		}
 
 		while (text.length() > 0) {
@@ -85,7 +97,6 @@ public class FixedTextArea {
 
 			//算出截下來的字串寬度
 			float size = fontSize * pdfFont.getStringWidth(testStr) / 1000;
-			System.out.printf("'%s' - %f of %f\n", testStr, size, rect.width);
 
 			if (size > rect.width) {
 				//要斷行
@@ -96,12 +107,10 @@ public class FixedTextArea {
 				String line = text.substring(0, lastPostition).trim();
 				lines.add(line);
 				text = text.substring(lastPostition).trim();
-				System.out.printf("'%s' is line\n", line);
 				lastPostition = -1;
 			} else if (breakIndex == text.length()) {
 				//後面沒有字了
 				lines.add(text);
-				System.out.printf("'%s' is Final\n", text);
 				break;
 			} else {
 				//不需要斷行，繼續補字
@@ -123,19 +132,11 @@ public class FixedTextArea {
 		this.lineHeight = lineHeight;
 	}
 
-	public Rect getRect() {
-		return rect;
-	}
-
-	public void setRect(Rect rect) {
-		this.rect = rect;
-	}
-
-	public PDFont getPdfFont() {
+	public PDFont getFont() {
 		return pdfFont;
 	}
 
-	public void setPdfFont(PDFont pdfFont) {
+	public void setFont(PDFont pdfFont) {
 		this.pdfFont = pdfFont;
 	}
 
