@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -39,7 +40,7 @@ public class FixedTextArea {
 	/**
 	 * 考慮到斷行、自動換行等行為，並將 text 輸出到 contentStream
 	 */
-	public void showText(String text, Rect rect) throws IOException {
+	public void showText(String text, PDRectangle rect) throws IOException {
 		showText(text, rect, pdfFont, fontSize, lineSpacing);
 	}
 
@@ -48,7 +49,7 @@ public class FixedTextArea {
 	 * <p>
 	 * 傳遞進來的參數不會改變 field 的值
 	 */
-	public void showText(String text, Rect rect, PDFont pdfFont, float fontSize, float lineSpacing) throws IOException {
+	public void showText(String text, PDRectangle rect, PDFont pdfFont, float fontSize, float lineSpacing) throws IOException {
 		List<String> lines = new ArrayList<String>();
 		float leading = lineSpacing + fontSize;
 
@@ -63,7 +64,7 @@ public class FixedTextArea {
 
 		contentStream.beginText();
 		contentStream.setFont(pdfFont, fontSize);
-		contentStream.newLineAtOffset(rect.startX, rect.startY);
+		contentStream.newLineAtOffset(rect.getLowerLeftX(), rect.getUpperRightY());
 
 		for (String line : lines) {
 			contentStream.showText(line);
@@ -75,7 +76,7 @@ public class FixedTextArea {
 	/**
 	 * 讓字串能夠在超過 {@link Rect#width} 時換行
 	 */
-	private List<String> simpleBreaker(String text, Rect rect, PDFont pdfFont, float fontSize, float leading) throws IOException {
+	private List<String> simpleBreaker(String text, PDRectangle rect, PDFont pdfFont, float fontSize, float leading) throws IOException {
 		List<String> lines = new ArrayList<String>();
 		int lastPostition = -1;
 		if (text.isEmpty()) {
@@ -90,7 +91,7 @@ public class FixedTextArea {
 			//算出截下來的字串寬度
 			float size = fontSize * pdfFont.getStringWidth(testStr) / 1000;
 
-			if (size > rect.width) {
+			if (size > rect.getWidth()) {
 				//要斷行
 				if (lastPostition < 0) {
 					lastPostition = breakIndex;
@@ -166,57 +167,31 @@ public class FixedTextArea {
 	}
 
 	/**
-	 * 用來表達文字可以顯示的範圍區塊
+	 * 用文字起點的垂直位置以及水平 margin 來決定輸出文字的區塊
+	 * @param yPos 文字起點的垂直位置
+	 * @param xMargin 水平 margin
+	 * @param mediaBox 文字區塊所在的 {@link PDPage#getMediaBox()}
 	 */
-	public static class Rect {
-		private float startX;
-		private float startY;
-		private float width;
-
-		public Rect(float startX, float startY, float width) {
-			super();
-			this.startX = startX;
-			this.startY = startY;
-			this.width = width;
-		}
-
-		/**
-		 * 以 {@link PDRectangle} 作為寬度、起點的依據
-		 */
-		public static Rect create(PDRectangle mediaBox) {
-			return new Rect(
-				mediaBox.getLowerLeftX(),
-				mediaBox.getUpperRightY(),
-				mediaBox.getWidth()
-			);
-		}
-
-		/**
-		 * 指定起點 y 的位置，並提供水平的 margin 來產生文字區塊
-		 * @param yPos y 座標
-		 * @param xMargin x 軸的 margin
-		 * @param mediaBox PDPage 的 size
-		 */
-		public static Rect create(float yPos, float xMargin, PDRectangle mediaBox) {
-			return new Rect(
-				mediaBox.getLowerLeftX() + xMargin,
-				yPos,
-				mediaBox.getWidth() - (2 * xMargin)
-			);
-		}
-
-		/**
-		 * 指定起點 x, y 的位置，並提供右邊邊界來決定文字區塊
-		 * @param yPos y 座標
-		 * @param xMargin x 軸的 margin
-		 * @param rightBoundary 右邊邊界的 x 座標
-		 */
-		public static Rect create(float xPos, float yPos, float rightBoundary) {
-			return new Rect(
-				xPos,
-				yPos,
-				rightBoundary - xPos
-			);
-		}
+	public static PDRectangle create(float yPos, float xMargin, PDRectangle mediaBox) {
+		return new PDRectangle(
+			mediaBox.getLowerLeftX() + xMargin,
+			yPos,
+			mediaBox.getWidth() - (2 * xMargin),
+			0
+		);
+	}
+	/**
+	 * 指定起點 x, y 的位置，並提供右邊邊界 x 座標來決定文字區塊
+	 * @param yPos y 座標
+	 * @param xMargin x 軸的 margin
+	 * @param rightBoundary 右邊邊界的 x 座標
+	 */
+	public static PDRectangle create(float xPos, float yPos, float rightBoundary) {
+		return new PDRectangle(
+			xPos,
+			yPos,
+			rightBoundary - xPos,
+			0
+		);
 	}
 }
