@@ -10,8 +10,6 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
- * <a href='http://stackoverflow.com/questions/19635275/how-to-generate-multiple-lines-in-pdf-using-apache-pdfbox'>Reference</a>
- * <p>
  * 顯示水平多列文字，提供自動換行功能
  * <p>
  * 注意事項：
@@ -23,27 +21,26 @@ public class FixedTextArea {
 	private PDPageContentStream contentStream;
 	private PDFont pdfFont;
 	private float fontSize;
-	private float lineHeight;
+	private float lineSpacing;
 
-	private boolean considerFontHeight = false;
 	private boolean currentIsOneByte = true;
 
 	public FixedTextArea(PDPageContentStream contentStream) {
-		this(contentStream, PDType1Font.HELVETICA, 18, 1);
+		this(contentStream, PDType1Font.HELVETICA, 18, 0);
 	}
 
-	public FixedTextArea(PDPageContentStream contentStream, PDFont pdfFont, float fontSize, float lineHeight) {
+	public FixedTextArea(PDPageContentStream contentStream, PDFont pdfFont, float fontSize, float lineSpacing) {
 		this.contentStream = contentStream;
 		this.pdfFont = pdfFont;
 		this.fontSize = fontSize;
-		this.lineHeight = lineHeight;
+		this.lineSpacing = lineSpacing;
 	}
 
 	/**
 	 * 考慮到斷行、自動換行等行為，並將 text 輸出到 contentStream
 	 */
 	public void showText(String text, Rect rect) throws IOException {
-		showText(text, rect, pdfFont, fontSize, lineHeight);
+		showText(text, rect, pdfFont, fontSize, lineSpacing);
 	}
 
 	/**
@@ -51,22 +48,17 @@ public class FixedTextArea {
 	 * <p>
 	 * 傳遞進來的參數不會改變 field 的值
 	 */
-	public void showText(String text, Rect rect, PDFont pdfFont, float fontSize, float lineHeight) throws IOException {
+	public void showText(String text, Rect rect, PDFont pdfFont, float fontSize, float lineSpacing) throws IOException {
 		List<String> lines = new ArrayList<String>();
-		float leading = lineHeight + fontSize;
+		float leading = lineSpacing + fontSize;
 
 		// 先把斷行處理掉
-		String[] textArray = text.replace("\r\n", "\n").split("\n");
+		String[] textArray = text.split("\n");
 
 		for (String line : textArray) {
 			lines.addAll(
 				simpleBreaker(line, rect, pdfFont, fontSize, leading)
 			);
-		}
-
-		// startY 如果設在 PDRectangle 最上方，就算是可視範圍內， render 的文字仍可能超過。
-		if (considerFontHeight) {
-			rect.startY = rect.startY - pdfFont.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
 		}
 
 		contentStream.beginText();
@@ -121,15 +113,12 @@ public class FixedTextArea {
 		return lines;
 	}
 
-	public float getLineHeight() {
-		return lineHeight;
+	public float getLineSpacing() {
+		return lineSpacing;
 	}
 
-	/**
-	 * 這是一個 offset 值
-	 */
-	public void setLineHeight(float lineHeight) {
-		this.lineHeight = lineHeight;
+	public void setLineSpacing(float lineSpacing) {
+		this.lineSpacing = lineSpacing;
 	}
 
 	public PDFont getFont() {
@@ -148,14 +137,6 @@ public class FixedTextArea {
 		this.fontSize = fontSize;
 	}
 
-	public boolean isConsiderFontHeight() {
-		return considerFontHeight;
-	}
-
-	public void setConsiderFontHeight(boolean considerFontHeight) {
-		this.considerFontHeight = considerFontHeight;
-	}
-
 	/**
 	 * 斷行可以是：
 	 * 1. 空白字元
@@ -171,7 +152,7 @@ public class FixedTextArea {
 
 			// 先記錄上一次是不是 1 byte
 			boolean lastIsOneByte = currentIsOneByte;
-			currentIsOneByte = String.valueOf(c).getBytes().length == 1; // 不是很嚴謹的判斷方式，但很有效
+			currentIsOneByte = (c <= 255); // 不是很嚴謹的判斷方式，但很有效
 
 			if (currentIsOneByte) {
 				// 是字母，但前一個不是字母
