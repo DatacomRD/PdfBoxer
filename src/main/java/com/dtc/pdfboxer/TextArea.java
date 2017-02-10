@@ -18,7 +18,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
  * 	<li>內文過長時，下邊界將會一直延展，直到 page 的底端</li>
  * </ul>
  */
-public class FixedTextArea {
+public class TextArea {
 	private PDPageContentStream contentStream;
 	private PDFont pdfFont;
 	private float fontSize;
@@ -26,11 +26,11 @@ public class FixedTextArea {
 
 	private boolean currentIsOneByte = true;
 
-	public FixedTextArea(PDPageContentStream contentStream) {
+	public TextArea(PDPageContentStream contentStream) {
 		this(contentStream, PDType1Font.HELVETICA, 18, 0);
 	}
 
-	public FixedTextArea(PDPageContentStream contentStream, PDFont pdfFont, float fontSize, float lineSpacing) {
+	public TextArea(PDPageContentStream contentStream, PDFont pdfFont, float fontSize, float lineSpacing) {
 		this.contentStream = contentStream;
 		this.pdfFont = pdfFont;
 		this.fontSize = fontSize;
