@@ -10,7 +10,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 /**
  * 提供將 PDF 檔轉換成圖檔的功能，核心的 API 為 {@link #convert(File, File, ImageFormat, float, ImageType)}
  * <p>
- * 注意事項：來源的 PDF 檔不能有內嵌標楷體（該字體的文字無法正確顯示）
+ * 注意事項：來源的 PDF 檔不能內嵌<b>標楷體</b>、<b>細明體</b>、<b>新細明體</b>，因字體的文字無法正確顯示
  */
 public class Converter {
 	public static final float DEFAULT_DPI = 300;
