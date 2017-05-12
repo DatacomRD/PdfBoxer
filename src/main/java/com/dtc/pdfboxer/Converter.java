@@ -1,8 +1,6 @@
 package com.dtc.pdfboxer;
 
 import java.io.File;
-import java.io.IOException;
-
 import javax.imageio.ImageIO;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -87,42 +85,25 @@ public class Converter {
 	 * @param type 設定圖片顏色型態
 	 */
 	public static boolean convert(File srcFile, File outputFolder, ImageFormat format, float dpi, ImageType type) {
-		PDDocument document = null;
-		try {
-			document = PDDocument.load(srcFile);
+		try (PDDocument document = PDDocument.load(srcFile)) {
 			PDFRenderer pdfRenderer = new PDFRenderer(document);
 
 			// 輸出檔名前綴
 			String fnamePrefix = srcFile.getName();
 			fnamePrefix = fnamePrefix.substring(0, fnamePrefix.lastIndexOf("."));
 
-			if (document.getNumberOfPages() == 1) {
+			for (int page = 0; page < document.getNumberOfPages(); page++) {
 				ImageIO.write(
-					pdfRenderer.renderImageWithDPI(0, dpi, type),
+					pdfRenderer.renderImageWithDPI(page, dpi, type),
 					format.name(),
-					new File(outputFolder, fnamePrefix + format.extName)
+					new File(outputFolder, fnamePrefix + "-" + (page+1) + format.extName)
 				);
-			} else {
-				for (int page = 0; page < document.getNumberOfPages(); page++) {
-					ImageIO.write(
-						pdfRenderer.renderImageWithDPI(page, dpi, type),
-						format.name(),
-						new File(outputFolder, fnamePrefix + "-" + (page+1) + format.extName)
-					);
-				}
 			}
+
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
-		} finally {
-			if (document != null) {
-				try {
-					document.close();
-				} catch (IOException e) {
-					//Ignore
-				}
-			}
 		}
 	}
 
