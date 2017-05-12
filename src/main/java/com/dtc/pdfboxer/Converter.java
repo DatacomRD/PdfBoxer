@@ -20,7 +20,7 @@ public class Converter {
 	 * 轉換成 JPG，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toJPG(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.JPG, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+		return toJPG(srcFile, outputFolder, DEFAULT_DPI);
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class Converter {
 	 * 轉換成 PNG，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toPNG(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.PNG, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+		return toPNG(srcFile, outputFolder, DEFAULT_DPI);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class Converter {
 	 * 轉換成 GIF，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toGIF(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.GIF, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+		return toGIF(srcFile, outputFolder, DEFAULT_DPI);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class Converter {
 	 * 轉換成 BMP，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toBMP(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.BMP, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+		return toBMP(srcFile, outputFolder, DEFAULT_DPI);
 	}
 
 	/**
@@ -85,6 +85,9 @@ public class Converter {
 	 * @param type 設定圖片顏色型態
 	 */
 	public static boolean convert(File srcFile, File outputFolder, ImageFormat format, float dpi, ImageType type) {
+
+		if (!outputFolder.isDirectory()) { throw new IllegalArgumentException(); }
+
 		try (PDDocument document = PDDocument.load(srcFile)) {
 			PDFRenderer pdfRenderer = new PDFRenderer(document);
 
