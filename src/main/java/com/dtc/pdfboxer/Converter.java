@@ -10,7 +10,9 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 /**
- * 提供將 PDF 檔轉換成圖檔的功能
+ * 提供將 PDF 檔轉換成圖檔的功能，核心的 API 為 {@link #convert(File, File, ImageFormat, float, ImageType)}
+ * <p>
+ * 注意事項：來源的 PDF 檔不能有內嵌標楷體（該字體的文字無法正確顯示）
  */
 public class Converter {
 	/**
@@ -42,20 +44,16 @@ public class Converter {
 	}
 
 	/**
-	 * 將 PDF 轉成圖檔，如果 PDF 有多頁就轉成多頁，輸出的檔案統一放在 outputFolder
+	 * 將 PDF 轉成圖檔（一頁一個檔案），輸出的檔案放在 outputFolder 之下
 	 * <p>
-	 * 假設來源檔案為 foobar.pdf 且轉換格式為 {@link ImageFormat#JPG}
-	 * <ul>
-	 * 	<li>輸出檔案（單頁）：foorbar.jpg</li>
-	 * 	<li>輸出檔案（多頁）：foorbar-1.jpg、foorbar-2.jpg、...</li>
-	 * </ul>
-	 * 注意事項：來源的 PDF 檔不能有內嵌標楷體（該字體的文字無法正確顯示）
+	 * 假設來源檔案為 foobar.pdf 且轉換格式為 {@link ImageFormat#JPG}，
+	 * 則輸出檔案：foobar-1.jpg、foobar-2.jpg、...
 	 *
 	 * @param srcFile 來源 PDF 檔
 	 * @param outputFolder 輸出檔案的目錄
-	 * @param format 檔案格式，參考 {@link ImageFormat}
+	 * @param format 檔案格式
 	 * @param dpi 設定 dpi 值來決定解析度
-	 * @param type 設定圖片顏色型態，參考 {@link ImageType}
+	 * @param type 設定圖片顏色型態
 	 */
 	public static boolean convert(File srcFile, File outputFolder, ImageFormat format, float dpi, ImageType type) {
 		PDDocument document = null;
