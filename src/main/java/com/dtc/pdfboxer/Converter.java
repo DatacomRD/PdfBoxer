@@ -15,32 +15,63 @@ import org.apache.pdfbox.rendering.PDFRenderer;
  * 注意事項：來源的 PDF 檔不能有內嵌標楷體（該字體的文字無法正確顯示）
  */
 public class Converter {
+	public static final float DEFAULT_DPI = 300;
+	public static final ImageType DEFAULT_IMAGE_TYPE = ImageType.RGB;
+
 	/**
 	 * 轉換成 JPG，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toJPG(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.JPG, 300, ImageType.RGB);
+		return convert(srcFile, outputFolder, ImageFormat.JPG, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+	}
+
+	/**
+	 * 轉換成 JPG，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
+	 */
+	public static boolean toJPG(File srcFile, File outputFolder, float dpi) {
+		return convert(srcFile, outputFolder, ImageFormat.JPG, dpi, DEFAULT_IMAGE_TYPE);
 	}
 
 	/**
 	 * 轉換成 PNG，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toPNG(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.PNG, 300, ImageType.RGB);
+		return convert(srcFile, outputFolder, ImageFormat.PNG, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+	}
+
+	/**
+	 * 轉換成 PNG，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
+	 */
+	public static boolean toPNG(File srcFile, File outputFolder, float dpi) {
+		return convert(srcFile, outputFolder, ImageFormat.PNG, dpi, DEFAULT_IMAGE_TYPE);
 	}
 
 	/**
 	 * 轉換成 GIF，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toGIF(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.GIF, 300, ImageType.RGB);
+		return convert(srcFile, outputFolder, ImageFormat.GIF, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+	}
+
+	/**
+	 * 轉換成 GIF，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
+	 */
+	public static boolean toGIF(File srcFile, File outputFolder, float dpi) {
+		return convert(srcFile, outputFolder, ImageFormat.GIF, dpi, DEFAULT_IMAGE_TYPE);
 	}
 
 	/**
 	 * 轉換成 BMP，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
 	 */
 	public static boolean toBMP(File srcFile, File outputFolder) {
-		return convert(srcFile, outputFolder, ImageFormat.BMP, 300, ImageType.RGB);
+		return convert(srcFile, outputFolder, ImageFormat.BMP, DEFAULT_DPI, DEFAULT_IMAGE_TYPE);
+	}
+
+	/**
+	 * 轉換成 BMP，參考 {@link #convert(File, File, ImageFormat, float, ImageType)}
+	 */
+	public static boolean toBMP(File srcFile, File outputFolder, float dpi) {
+		return convert(srcFile, outputFolder, ImageFormat.BMP, dpi, DEFAULT_IMAGE_TYPE);
 	}
 
 	/**
