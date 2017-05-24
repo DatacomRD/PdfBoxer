@@ -88,7 +88,9 @@ public class Converter {
 
 		if (!outputFolder.isDirectory()) { throw new IllegalArgumentException(); }
 
-		try (PDDocument document = PDDocument.load(srcFile)) {
+		PDDocument document = null;
+		try {
+			document = PDDocument.load(srcFile);
 			PDFRenderer pdfRenderer = new PDFRenderer(document);
 
 			// 輸出檔名前綴
@@ -107,6 +109,14 @@ public class Converter {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
+		} finally {
+			if (document != null) {
+				try {
+					document.close();
+				} catch (Exception e) {
+					//Ignore
+				}
+			}
 		}
 	}
 
